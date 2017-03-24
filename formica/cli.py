@@ -61,6 +61,13 @@ def stack(message):
                         envvar='FORMICA_STACK')
 
 
+def fix_s3_path(ctx, param, value):
+    return value.lstrip('s3://')
+
+def s3_path(f):
+    return click.option('--s3-path', help="S3 Path to upload file to: bucket-name/folder1/folder2", metavar='S3_PATH',
+                        envvar='FORMICA_S3_PATH', callback=fix_s3_path)(f)
+
 @click.group()
 @click.version_option()
 @click.option('--debug/--no-debug', help='Enable debugging output')
@@ -83,6 +90,7 @@ def template():
 @stack_parameters
 @stack_tags
 @capabilities
+@s3_path
 def new(stack, parameter, tag, capabilities):
     """Create a change set for a new stack"""
     client = AWS.current_session().client('cloudformation')
@@ -103,6 +111,7 @@ def new(stack, parameter, tag, capabilities):
 @stack_parameters
 @stack_tags
 @capabilities
+@s3_path
 def change(stack, parameter, tag, capabilities):
     """Create a change set for an existing stack"""
     client = AWS.current_session().client('cloudformation')
